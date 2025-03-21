@@ -1,7 +1,8 @@
-
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
-from django.contrib.auth.models import User
+class Usuari(AbstractUser):
+    auth_token = models.CharField(max_length=32,blank=True,null=True)
 
 class Pelicula(models.Model):
     titol = models.CharField(max_length=200)
@@ -50,7 +51,7 @@ class Entrada(models.Model):
     sessio = models.ForeignKey(Sessio, on_delete=models.CASCADE, related_name='entrades')
     butaca = models.ForeignKey(Butaca, on_delete=models.CASCADE, related_name='entrades')
     preu = models.DecimalField(max_digits=6, decimal_places=2)
-    comprador = models.ForeignKey(User, on_delete=models.SET_NULL,
+    comprador = models.ForeignKey(Usuari, on_delete=models.SET_NULL,
                             null=True, blank=True, related_name='entrades')
     data_compra = models.DateTimeField(auto_now_add=True)
 

@@ -1,10 +1,11 @@
 import random
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from faker import Faker
 from sales.models import Pelicula, Sala, Butaca, Sessio, Entrada
 
 fake = Faker()
+Usuari = get_user_model()  
 
 class Command(BaseCommand):
     help = "Seed database with fake data"
@@ -16,12 +17,12 @@ class Command(BaseCommand):
         Butaca.objects.all().delete()
         Sala.objects.all().delete()
         Pelicula.objects.all().delete()
-        User.objects.filter(is_superuser=False).delete()
+        Usuari.objects.filter(is_superuser=False).delete()
         
         self.stdout.write(self.style.SUCCESS("Generando datos falsos..."))
 
         # Crear usuarios
-        usuarios = [User.objects.create_user(username=fake.user_name(), email=fake.email(), password="password") for _ in range(5)]
+        usuarios = [Usuari.objects.create_user(username=fake.user_name(), email=fake.email(), password="password") for _ in range(5)]
         
         # Crear películas
         peliculas = [Pelicula.objects.create(

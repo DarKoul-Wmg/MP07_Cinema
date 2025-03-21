@@ -1,10 +1,39 @@
-from ninja import NinjaAPI
+from ninja import NinjaAPI, Schema
 from sales.models import *
 from typing import List
-from ninja import Schema
 from datetime import date
 
+from django.contrib.auth import authenticate as djangoauth
+from ninja.security import HttpBasicAuth, HttpBearer
+import secrets
+
 api = NinjaAPI()
+
+# Autenticació bàsica
+class BasicAuth(HttpBasicAuth):
+    def authenticate(self, request, username, password):
+        user = djangoauth(username=username, password=password)
+        if user:
+            # return user
+            # Genera un token simple
+            token = secrets.token_hex(16)
+            user.auth_token = token
+            user.save()
+            return token
+        return None
+
+class BasicAuth(HttpBasicAuth):
+    def authenticate(self, request, username, password):
+        user = djangoauth(username=username, password=password)
+        if user:
+            # return user
+            # Genera un token simple
+            token = secrets.token_hex(16)
+            user.auth_token = token
+            user.save()
+            return token
+        return None
+
 
 class PeliculaOut(Schema):
     titol: str
@@ -40,9 +69,14 @@ class SalesOut(Schema):
     butaques: List[ButacaOut]
 
 #butaques -> devuelve la lista porque en el modelo de Sala esta definido como related model
-@api.get("/sales", response=List[SalesOut])
+# @api.get("/sales", response=List[SalesOut], auth=BasicAuth())
+# def obtenirSales(request):
+#     sales = Sala.objects.all()
+#     return sales
+@api.get("/sales", response=List[SalesOut], auth=AuthBearer())
 def obtenirSales(request):
     sales = Sala.objects.all()
     return sales
 
-# curl localhost:8000/api/pelicules
+# curl localhost:8000/api/pelicules 
+#curl -H 'Authorization:Bearer YWRtaW46YWRtaW4xMjM=' http://localhost:8000/api/users/
